@@ -73,6 +73,31 @@ app.get("/notes/:nodeId", async (req: Request, res: Response) => {
     data: myNote,
   });
 });
+//update a note
+app.patch("/notes/:noteId", async (req: Request, res: Response) => {
+  const singleNote = req.params.noteId;
+  const updateNote = req.body;
+  const myNote = await Note.findByIdAndUpdate(singleNote, updateNote, {
+    new: true,
+  });
+  res.status(201).json({
+    success: true,
+    message: "note updated successfully",
+    data: myNote,
+  });
+});
+//delete note
+app.delete("/notes/:noteId", async (req: Request, res: Response) => {
+  const singleNote = req.params.noteId;
+  const myNote = await Note.findByIdAndDelete(singleNote, {
+    new: true,
+  });
+  res.status(201).json({
+    success: true,
+    message: "note deleted  successfully",
+    data: myNote,
+  });
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Note App");
