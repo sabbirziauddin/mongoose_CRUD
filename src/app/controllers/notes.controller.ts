@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { Note } from '../models/notes.model';
+
+import { Note } from "../models/notes.model";
 
 export const noteRoutes = express.Router();
 
@@ -13,7 +14,7 @@ noteRoutes.post("/create-note", async (req: Request, res: Response) => {
   //await myNote.save();
   //another way to create post
   const body = req.body;
-  console.log(body);
+
   const myNote = await Note.create(body);
   res.status(201).json({
     success: true,
@@ -23,12 +24,20 @@ noteRoutes.post("/create-note", async (req: Request, res: Response) => {
 });
 //get all notes
 noteRoutes.get("/", async (req: Request, res: Response) => {
-  const myNote = await Note.find();
-  res.status(201).json({
-    success: true,
-    message: "note create successfully",
-    data: myNote,
-  });
+  try {
+    const myNote = await Note.find().populate("user");
+    res.status(201).json({
+      success: true,
+      message: "note create successfully",
+      data: [myNote],
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: "Failed to fetch all notes",
+      error: error.message,
+    });
+  }
 });
 
 //get single note

@@ -1,7 +1,19 @@
+import bcrypt from "bcrypt";
 import { model, Schema } from "mongoose";
-import { IUser } from "../interfaces/users.interface";
+import { IAddress, IUser } from "../interfaces/users.interface";
 import validator, { isEmail } from "validator";
 
+//create address schema
+const addressSchema = new Schema<IAddress>(
+  {
+    city: { type: String },
+    street: { type: String },
+    zipCode: { type: Number },
+  },
+  { _id: false }
+);
+
+//create user schema
 const userSchema = new Schema<IUser>(
   {
     firstName: {
@@ -45,10 +57,18 @@ const userSchema = new Schema<IUser>(
       },
       default: "user",
     },
+    address: {
+      type: addressSchema,
+    },
   },
-  {
-    versionKey: false,
-    timestamps: true,
-  }
+
+  { versionKey: false, timestamps: true }
 );
-export const User = model<IUser>("User",userSchema,'userDb');
+//create instance method
+userSchema.methods.encryptPassword = async function (this: IUser) {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  return this.password;
+};
+
+export const User = model<IUser>("User", userSchema, "userDb");
